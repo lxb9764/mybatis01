@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--namespace:命名空间，指向对应的接口-->
+<mapper namespace="net.wanho.mapper.StudentMapper">
+    <!--
+        id:对应接口中方法的名字
+        parameterType：方法中的参数类型
+    -->
+    <insert id="addStu" parameterType="Student">
+        INSERT INTO student VALUES (NULL ,#{username},#{age},#{gender})
+    </insert>
+    <!--
+        返回主键
+    -->
+    <insert id="addStuReturnKey" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO student VALUES (NULL ,#{username},#{age},#{gender})
+    </insert>
+    <insert id="addStuReturnKey1">
+        <selectKey keyProperty="id" order="AFTER" resultType="int">
+            SELECT last_insert_id()
+        </selectKey>
+        INSERT INTO student VALUES (NULL ,#{username},#{age},#{gender})
+    </insert>
+
+    <delete id="deleteStu" parameterType="integer">
+        DELETE FROM student WHERE id = #{id}
+    </delete>
+    <!--
+        resultType:返回的结果集
+        表中的字段和pojo类中的属性名不一致
+            如果使用resultType：给列起别名，命名为pojo类中的属性名
+                SELECT id,username,age,gender,address address1 FROM student
+            如果使用resultMap：自己写映射
+                <select id="getAllStus" resultMap="stuMap">
+                   SELECT id,username,age,gender,address FROM student
+               </select>
+    -->
+    <resultMap id="stuMap" type="Student">
+        <id column="id" property="id"/>
+        <result column="username" property="username"/>
+        <result column="age" property="age"/>
+        <result column="gender" property="gender"/>
+        <result column="address" property="address1"/>
+    </resultMap>
+    <!--<select id="getAllStus" resultType="net.wanho.pojo.Student">
+        SELECT id,username,age,gender,address address1 FROM student
+    </select>-->
+    <select id="getAllStus" resultMap="stuMap">
+       SELECT id,username,age,gender,address FROM student
+   </select>
+    <select id="getStuById" resultType="net.wanho.pojo.Student">
+       SELECT * FROM student WHERE id = #{id}
+    </select>
+    <!--
+        模糊查询
+        简单数据类型
+        SELECT * FROM student WHERE username LIKE #{username}
+        SELECT * FROM student WHERE username LIKE #{1}
+        SELECT * FROM student WHERE username LIKE ${username}
+
+        SELECT * FROM student WHERE username LIKE "%${value}%":前台可以直接传名字
+        复杂数据类型
+        使用#名称，就不可以使用任意占位符，必须是传过来的参数的名字
+    -->
+    <select id="getStusByName" resultType="net.wanho.pojo.Student">
+        SELECT * FROM student WHERE username LIKE concat("%",#{username},"%")
+    </select>
+    <select id="getStusByName2" resultType="net.wanho.pojo.Student">
+        SELECT * FROM student WHERE username LIKE concat("%",#{username},"%")
+    </select>
+
+    <update id="updateStu" parameterType="Student">
+        UPDATE student SET username = #{username} WHERE id = #{id}
+    </update>
+    <!--
+        多个参数传值
+            简单类型
+    -->
+    <update id="updateStu1">
+        UPDATE student SET username = #{param1} WHERE id = #{param2}
+    </update>
+    <update id="updateStu2">
+         UPDATE student SET username = #{username} WHERE id = #{id}
+    </update>
+    <update id="updateStu3">
+        UPDATE student SET username = #{stu.username} WHERE id = #{id}
+    </update>
+</mapper>
